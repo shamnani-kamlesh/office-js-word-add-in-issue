@@ -1,0 +1,48 @@
+<!-- Copyright (c) Microsoft Corporation. All rights reserved. Licensed under the MIT License. -->
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- Office JavaScript API -->
+    <script type="text/javascript" src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
+</head>
+<body>
+    <p>Sample Add-In App.</p>
+    <button id="saveButton">Save</button>
+    <br/>
+    <br/>
+    <span id="message"></span>
+</body>
+
+<script>
+    const message = document.getElementById('message');
+
+    Office.onReady((info) => {
+        // Check that we loaded into Word
+        if (info.host === Office.HostType.Word) {
+            document.getElementById("saveButton").onclick = saveDocument;
+        }
+    });
+ 
+    function saveDocument() {        
+        Word.run(async (context) => {
+            let document = context.document;
+            context.load(document, "saved");
+            await context.sync();
+
+            message.textContent = '';
+
+            if (document.saved === false) {
+                document.save();
+                await context.sync();                                    
+                message.textContent = 'The docuemnt has been succesfully saved';
+                
+                context.load(document, "saved");
+                await context.sync();
+                message.textContent += ' [document.saved: '+ document.saved + '] ';
+            } else {
+                message.textContent = 'The document has not changed since the last save';
+            }
+        });
+    }
+</script>
+</html>
